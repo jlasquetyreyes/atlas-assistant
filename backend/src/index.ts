@@ -71,7 +71,7 @@ app.get('/', (req: Request, res: Response) => {
       vectorUpdate: '/vector-update',
       vectorStatus: '/vector-update/status'
     },
-    documentation: 'https://github.com/your-org/atlas-node'
+    documentation: 'https://github.com/jlasquetyreyes/atlas-assistant'
   });
 });
 
