@@ -4,9 +4,9 @@ AI-powered document assistant with RAG (Retrieval-Augmented Generation) capabili
 
 The web app is here: https://atlas-prototype-f89b0.web.app
 
-The demonstration video is here:
+The demo video is here: https://www.youtube.com/watch?v=YTaImSCDooI
 
-The explanation video is here:
+The explanation video is here: https://www.youtube.com/watch?v=TnGnBp3YKJk
 
 The sample Notion document is here: https://www.notion.so/Jeremiah-Atlas-Edit-Weekly-Proposal-for-Agent-Launch-Week-of-2025-03-10-231aacd47a478086b616ca880113c6a6
 

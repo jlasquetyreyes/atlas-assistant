@@ -133,10 +133,19 @@ app.post('/rag', async (req: Request, res: Response) => {
 
     // 1. Generate embedding for the query
     const embeddingModel = genAI.getGenerativeModel({ model: "embedding-001"});
-    const embeddingResult = await traceable(async (q: string) => {
-      return await embeddingModel.embedContent(q);
+
+    // Get the actual embedding
+    const actualEmbeddingResult = await embeddingModel.embedContent(query);
+    const queryEmbedding = actualEmbeddingResult.embedding.values;
+
+    // Track embedding generation in LangSmith
+    await traceable(async (q: string) => {
+      return {
+        query: q,
+        embedding_length: queryEmbedding.length,
+        model: "embedding-001"
+      };
     }, { name: "Gemini Embedding" })(query);
-    const queryEmbedding = embeddingResult.embedding.values;
 
     // 2. Query Pinecone
     const indexName = process.env.PINECONE_INDEX_NAME!;
@@ -178,16 +187,28 @@ User question: ${query}
 
 Response:`;
 
-    const result = await traceable(async (p: string) => {
-      return await generativeModel.generateContentStream(p);
-    }, { name: "Gemini Generation" })(prompt);
+    const result = await generativeModel.generateContentStream(prompt);
+    let fullResponse = '';
+
+    const tracedGeneration = traceable(
+      async (inputPrompt: string) => {
+        // The actual generation already happened, we're just logging it
+        // Return the response as output (inputPrompt is the input)
+        return fullResponse;
+      },
+      { name: "Gemini Generation" }
+    );
 
     for await (const chunk of result.stream) {
       const chunkText = chunk.text();
       if (chunkText) {
+        fullResponse += chunkText;
         res.write(`data: ${JSON.stringify({ chunk: chunkText })}\n\n`);
       }
     }
+
+    // Log the complete interaction to LangSmith
+    await tracedGeneration(prompt);
     res.write('event: end\ndata: {"message": "Stream complete"}\n\n');
     res.end();
 

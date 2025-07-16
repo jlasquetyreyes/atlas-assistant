@@ -20,7 +20,8 @@ snapshot_pairs AS (
 ),
 filtered_snapshot_pairs AS (
   -- Filter out pairs where earlier_snapshot is NULL
-  SELECT 
+  -- Process ALL consecutive snapshot pairs to preserve historical records
+  SELECT
     later_snapshot,
     earlier_snapshot
   FROM snapshot_pairs
@@ -28,19 +29,21 @@ filtered_snapshot_pairs AS (
 ),
 later_snapshot_blocks AS (
   -- Get blocks from the later snapshot (current)
-  SELECT 
+  SELECT
     s.*,
     sp.earlier_snapshot
   FROM {{ ref('snapshot_blocks') }} s
   JOIN filtered_snapshot_pairs sp ON s.dbt_updated_at = sp.later_snapshot
 ),
-earlier_snapshot_blocks AS (
-  -- Get blocks from the earlier snapshot (previous)
-  SELECT 
+earlier_state_blocks AS (
+  -- For each snapshot pair, get the most recent version of each block from ALL previous snapshots
+  SELECT DISTINCT ON (sp.later_snapshot, s.block_id)
     s.*,
-    sp.later_snapshot
-  FROM {{ ref('snapshot_blocks') }} s
-  JOIN filtered_snapshot_pairs sp ON s.dbt_updated_at = sp.earlier_snapshot
+    sp.later_snapshot,
+    sp.earlier_snapshot
+  FROM filtered_snapshot_pairs sp
+  JOIN {{ ref('snapshot_blocks') }} s ON s.dbt_updated_at <= sp.earlier_snapshot
+  ORDER BY sp.later_snapshot, s.block_id, s.dbt_updated_at DESC
 ),
 added AS (
   -- Blocks that exist in current but not in previous snapshot
@@ -57,7 +60,8 @@ added AS (
     NULL AS old_type,
     ls.block_type AS new_type
   FROM later_snapshot_blocks ls
-  LEFT JOIN earlier_snapshot_blocks es ON ls.block_id = es.block_id
+  LEFT JOIN earlier_state_blocks es ON ls.block_id = es.block_id
+    AND es.later_snapshot = ls.dbt_updated_at
   WHERE es.block_id IS NULL
 ),
 updated AS (
@@ -75,7 +79,8 @@ updated AS (
     es.block_type AS old_type,
     ls.block_type AS new_type
   FROM later_snapshot_blocks ls
-  JOIN earlier_snapshot_blocks es ON ls.block_id = es.block_id
+  JOIN earlier_state_blocks es ON ls.block_id = es.block_id
+    AND es.later_snapshot = ls.dbt_updated_at
   WHERE es.text_content IS DISTINCT FROM ls.text_content
     AND es.parent_id IS NOT DISTINCT FROM ls.parent_id  -- Only if parent didn't change
 ),
@@ -94,7 +99,8 @@ moved AS (
     es.block_type AS old_type,                       -- Include block type for completeness
     ls.block_type AS new_type                        -- Include block type (same as old)
   FROM later_snapshot_blocks ls
-  JOIN earlier_snapshot_blocks es ON ls.block_id = es.block_id
+  JOIN earlier_state_blocks es ON ls.block_id = es.block_id
+    AND es.later_snapshot = ls.dbt_updated_at
   WHERE es.parent_id IS DISTINCT FROM ls.parent_id
     AND es.text_content IS NOT DISTINCT FROM ls.text_content  -- Only if content didn't change
 ),
@@ -113,7 +119,8 @@ updated_and_moved AS (
     es.block_type AS old_type,
     ls.block_type AS new_type
   FROM later_snapshot_blocks ls
-  JOIN earlier_snapshot_blocks es ON ls.block_id = es.block_id
+  JOIN earlier_state_blocks es ON ls.block_id = es.block_id
+    AND es.later_snapshot = ls.dbt_updated_at
   WHERE es.text_content IS DISTINCT FROM ls.text_content
     AND es.parent_id IS DISTINCT FROM ls.parent_id  -- Both content AND parent changed
 ),
@@ -132,7 +139,8 @@ type_changed AS (
     es.block_type AS old_type,
     ls.block_type AS new_type
   FROM later_snapshot_blocks ls
-  JOIN earlier_snapshot_blocks es ON ls.block_id = es.block_id
+  JOIN earlier_state_blocks es ON ls.block_id = es.block_id
+    AND es.later_snapshot = ls.dbt_updated_at
   WHERE es.block_type IS DISTINCT FROM ls.block_type
     AND es.text_content IS NOT DISTINCT FROM ls.text_content  -- Only if content didn't change
     AND es.parent_id IS NOT DISTINCT FROM ls.parent_id  -- Only if parent didn't change

@@ -151,7 +151,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ className = '' }) 
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Bot className="w-8 h-8 text-white" />
             </div>
-            <h4 className="text-lg font-semibold text-gray-900 mb-2">Welcome to Atlas Chatbot</h4>
+            <h4 className="text-lg font-semibold text-gray-900 mb-2">Welcome to Atlas Assistant</h4>
             <p className="text-gray-500">Start a conversation by asking a question below.</p>
           </div>
         )}
