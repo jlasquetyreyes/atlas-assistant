@@ -62,7 +62,7 @@ To ensure deleted blocks don't appear in RAG results, the system uses a **full r
 
 ### 📈 **Data Pipeline**
 - dbt snapshots for historical tracking
-- Incremental models for efficient processing
+- Comprehensive change tracking across all snapshot pairs
 - Configurable deletion thresholds
 
 ## 🚀 Quick Start
@@ -244,21 +244,4 @@ npm run build
 - `POST /vector-update` - Trigger vector database update
 - `GET /vector-update/status` - Vector update progress
 
-## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## 📄 License
-
-MIT License - see LICENSE file for details
-
-## 🆘 Support
-
-For issues and questions:
-- Create an issue on GitHub
-- Check the documentation in `/docs`
-- Review the dbt model documentation
