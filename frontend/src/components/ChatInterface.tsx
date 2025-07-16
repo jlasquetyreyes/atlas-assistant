@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { Send, Bot, User } from 'lucide-react';
 
 interface Message {
@@ -177,7 +178,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ className = '' }) 
                   ? 'bg-blue-500 text-white'
                   : 'bg-gray-50 text-gray-900'
               }`}>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                {message.type === 'user' ? (
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                ) : (
+                  <div className="text-sm leading-relaxed prose prose-sm max-w-none prose-headings:text-gray-900 prose-headings:font-semibold prose-h3:text-base prose-h3:mb-2 prose-h3:mt-4 prose-p:text-gray-700 prose-p:mb-3 prose-ul:text-gray-700 prose-li:mb-1 prose-strong:text-gray-900">
+                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                  </div>
+                )}
                 <p className={`text-xs mt-2 ${
                   message.type === 'user' ? 'text-blue-100' : 'text-gray-400'
                 }`}>
