@@ -1,0 +1,184 @@
+version: 2
+
+models:
+  - name: vector_chunks
+    description: "Vector database chunks created directly from blocks with coalesced text content"
+    columns:
+      - name: top_block_id
+        description: "Unique identifier for the top-level block (direct child of page)"
+        tests:
+          - not_null
+          - unique
+      - name: page_id
+        description: "Unique identifier for the Notion page containing this block"
+        tests:
+          - not_null
+      - name: complete_text
+        description: "Concatenated text from the top-level block and all its descendant blocks"
+        tests:
+          - not_null
+      - name: character_length
+        description: "Number of characters in the complete_text"
+      - name: word_length
+        description: "Number of words in the complete_text"
+      - name: total_blocks
+        description: "Total number of blocks included in the complete text"
+      - name: max_depth
+        description: "Maximum depth of nested blocks in the hierarchy"
+      - name: first_created
+        description: "Earliest creation time of any block in the hierarchy"
+      - name: last_updated
+        description: "Most recent edit time of any block in the hierarchy"
+      - name: vector_id
+        description: "Unique identifier for vector database storage (based on top_block_id)"
+        tests:
+          - not_null
+          - unique
+      - name: metadata
+        description: "JSONB object containing additional metadata for vector database"
+
+  - name: diff_history
+    description: "Model that tracks all changes between consecutive snapshots including additions, deletions, updates, moves, and type changes"
+    columns:
+      - name: change_id
+        description: "Unique identifier for the change record"
+        tests:
+          - not_null
+          - unique
+      - name: block_id
+        description: "Unique identifier for the block"
+        tests:
+          - not_null
+      - name: change_type
+        description: "Type of change: added, deleted, updated, moved, updated_and_moved, or type_changed"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['added', 'deleted', 'updated', 'moved', 'updated_and_moved', 'type_changed']
+      - name: previous_snapshot_time
+        description: "Timestamp of the previous snapshot"
+      - name: current_snapshot_time
+        description: "Timestamp of the current snapshot"
+      - name: old_text
+        description: "Previous text content (NULL for added blocks)"
+      - name: new_text
+        description: "New text content (NULL for deleted blocks)"
+      - name: old_parent
+        description: "Previous parent block ID (NULL for added blocks)"
+      - name: new_parent
+        description: "New parent block ID (NULL for deleted blocks)"
+      - name: old_type
+        description: "Previous block type (NULL for added blocks)"
+      - name: new_type
+        description: "New block type (NULL for deleted blocks)"
+
+  - name: block_registry_update
+    description: "Model that updates the block registry with current block states and tracks missing blocks"
+    columns:
+      - name: block_id
+        description: "Unique identifier for the block"
+        tests:
+          - not_null
+          - unique
+      - name: first_seen_at
+        description: "Timestamp when the block was first observed"
+        tests:
+          - not_null
+      - name: last_seen_at
+        description: "Timestamp when the block was last observed"
+        tests:
+          - not_null
+      - name: is_active
+        description: "Whether the block is currently active (TRUE) or potentially deleted (FALSE)"
+        tests:
+          - not_null
+      - name: last_known_text
+        description: "Last known text content of the block"
+      - name: last_known_parent_id
+        description: "Last known parent block ID"
+      - name: last_known_block_type
+        description: "Last known block type"
+      - name: consecutive_misses
+        description: "Number of consecutive times the block was not found in source data"
+        tests:
+          - not_null
+
+  - name: deletion_events_generator
+    description: "Model that generates deletion events for blocks that have been missing for a threshold period"
+    columns:
+      - name: deletion_id
+        description: "Unique identifier for the deletion event"
+        tests:
+          - not_null
+          - unique
+      - name: block_id
+        description: "Unique identifier for the deleted block"
+        tests:
+          - not_null
+      - name: detected_at
+        description: "Timestamp when the deletion was detected"
+        tests:
+          - not_null
+      - name: last_seen_at
+        description: "Timestamp when the block was last seen"
+        tests:
+          - not_null
+      - name: missing_for_hours
+        description: "Number of hours the block has been missing"
+        tests:
+          - not_null
+      - name: last_known_text
+        description: "Last known text content of the deleted block"
+      - name: last_known_parent_id
+        description: "Last known parent block ID of the deleted block"
+      - name: last_known_block_type
+        description: "Last known block type of the deleted block"
+      - name: confidence_level
+        description: "Confidence level of the deletion: possible, likely, or confirmed"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['possible', 'likely', 'confirmed']
+
+  - name: complete_diff_history
+    description: "Complete diff history combining snapshot-based changes with registry-based deletion detection"
+    columns:
+      - name: change_id
+        description: "Unique identifier for the change record"
+        tests:
+          - not_null
+          - unique
+      - name: block_id
+        description: "Unique identifier for the block"
+        tests:
+          - not_null
+      - name: change_type
+        description: "Type of change: added, deleted, updated, moved, updated_and_moved, or type_changed"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['added', 'deleted', 'updated', 'moved', 'updated_and_moved', 'type_changed']
+      - name: previous_snapshot_time
+        description: "Timestamp of the previous snapshot or last seen time"
+      - name: current_snapshot_time
+        description: "Timestamp of the current snapshot or detection time"
+      - name: old_text
+        description: "Previous text content (NULL for added blocks)"
+      - name: new_text
+        description: "New text content (NULL for deleted blocks)"
+      - name: old_parent
+        description: "Previous parent block ID (NULL for added blocks)"
+      - name: new_parent
+        description: "New parent block ID (NULL for deleted blocks)"
+      - name: old_type
+        description: "Previous block type (NULL for added blocks)"
+      - name: new_type
+        description: "New block type (NULL for deleted blocks)"
+      - name: confidence_level
+        description: "Confidence level for deletion events (NULL for snapshot-based changes)"
+      - name: detection_method
+        description: "Method used to detect the change: 'snapshot' or 'registry'"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['snapshot', 'registry']

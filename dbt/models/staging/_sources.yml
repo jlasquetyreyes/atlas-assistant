@@ -1,0 +1,42 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw data from Supabase"
+    schema: public  # or your actual schema name
+    
+    tables:
+      - name: blocks
+        description: "Raw blocks data from Notion"
+        columns:
+          - name: id
+            description: "Unique identifier for the block"
+            tests:
+              - not_null
+              - unique
+          - name: parent
+            description: "Parent block information"
+          - name: type
+            description: "Type of the block"
+          - name: paragraph
+            description: "Paragraph block content"
+          - name: heading_1
+            description: "Heading 1 block content"
+          - name: heading_2
+            description: "Heading 2 block content"
+          - name: toggle
+            description: "Toggle block content"
+          - name: to_do
+            description: "To-do block content"
+          - name: bulleted_list_item
+            description: "Bulleted list item content"
+          - name: numbered_list_item
+            description: "Numbered list item content"
+          - name: quote
+            description: "Quote block content"
+          - name: code
+            description: "Code block content"
+          - name: created_time
+            description: "When the block was created"
+          - name: last_edited_time
+            description: "When the block was last edited" 

@@ -1,0 +1,35 @@
+name: 'atlas_node'
+version: '1.0.0'
+config-version: 2
+
+profile: 'atlas_node'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  atlas_node:
+    materialized: table
+    marts:
+      block_registry_update:
+        materialized: table
+      deletion_events_generator:
+        materialized: incremental
+        unique_key: deletion_id
+      complete_diff_history:
+        materialized: table
+
+# Variables for deletion detection configuration
+vars:
+  deletion_confirmation_threshold: 3  # Number of consecutive misses before marking inactive
+  medium_confidence_threshold: 3      # Threshold for 'likely' deletion confidence
+  high_confidence_threshold: 5        # Threshold for 'confirmed' deletion confidence

@@ -1,0 +1,36 @@
+atlas_node:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: aws-0-eu-central-1.pooler.supabase.com
+      port: 5432
+      user: postgres.ckitkhrumakndgqnwdtg
+      password: "{{ env_var('DBT_PASSWORD') }}"
+      dbname: postgres
+      schema: public
+      threads: 4
+      keepalives_idle: 0
+      search_path: public
+      sslmode: require
+      # Force IPv4 connection
+      host_routing: false
+      # Additional connection parameters
+      connect_timeout: 10
+      application_name: dbt
+    
+    # Alternative profile using IP address directly
+    dev_ipv4:
+      type: postgres
+      host: 52.59.152.35
+      port: 5432
+      user: postgres.ckitkhrumakndgqnwdtg
+      password: "{{ env_var('DBT_PASSWORD') }}"
+      dbname: postgres
+      schema: public
+      threads: 4
+      keepalives_idle: 0
+      search_path: public
+      sslmode: require
+      connect_timeout: 10
+      application_name: dbt 

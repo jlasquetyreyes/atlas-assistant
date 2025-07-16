@@ -1,0 +1,31 @@
+version: 2
+
+models:
+  - name: stg_blocks
+    description: "Staging model that extracts and cleans raw blocks data from Notion"
+    columns:
+      - name: block_id
+        description: "Unique identifier for the block"
+        tests:
+          - not_null
+          - unique
+      - name: parent_id
+        description: "ID of the parent block"
+      - name: parent_type
+        description: "Type of the parent (page_id, block_id, etc.)"
+      - name: block_type
+        description: "Type of the block (paragraph, heading_1, etc.)"
+        tests:
+          - not_null
+      - name: rich_text
+        description: "JSONB array containing rich text content"
+      - name: created_time
+        description: "When the block was created"
+        tests:
+          - not_null
+      - name: last_edited_time
+        description: "When the block was last edited"
+        tests:
+          - not_null
+      - name: page_id
+        description: "ID of the page containing this block (if parent is a page)" 

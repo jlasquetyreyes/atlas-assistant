@@ -1,0 +1,28 @@
+version: 2
+
+snapshots:
+  - name: snapshot_blocks
+    description: "Type 2 Slowly Changing Dimension (SCD) for blocks data"
+    columns:
+      - name: dbt_scd_id
+        description: "Unique identifier for each snapshot record"
+      - name: block_id
+        description: "Unique identifier for the block"
+        tests:
+          - not_null
+      - name: parent_block_id
+        description: "ID of the parent block"
+      - name: block_type
+        description: "Type of the block (cleaned)"
+      - name: text_content
+        description: "Extracted text content from the block"
+      - name: created_time
+        description: "When the block was created"
+      - name: last_edited_time
+        description: "When the block was last edited"
+      - name: dbt_updated_at
+        description: "When this snapshot record was created"
+      - name: dbt_valid_from
+        description: "Start date for this version of the record"
+      - name: dbt_valid_to
+        description: "End date for this version of the record (NULL if current)" 
