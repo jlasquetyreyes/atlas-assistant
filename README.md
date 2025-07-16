@@ -2,13 +2,13 @@
 
 AI-powered document assistant with RAG (Retrieval-Augmented Generation) capabilities and change tracking for Notion documents.
 
-The web app is here: https://atlas-prototype-f89b0.web.app
+The web app is here: <a href="https://atlas-prototype-f89b0.web.app" target="_blank">https://atlas-prototype-f89b0.web.app</a>
 
-The demo video is here: https://www.youtube.com/watch?v=YTaImSCDooI
+The demo video is here: <a href="https://www.youtube.com/watch?v=YTaImSCDooI" target="_blank">https://www.youtube.com/watch?v=YTaImSCDooI</a>
 
-The explanation video is here: https://www.youtube.com/watch?v=TnGnBp3YKJk
+The explanation video is here: <a href="https://www.youtube.com/watch?v=TnGnBp3YKJk" target="_blank">https://www.youtube.com/watch?v=TnGnBp3YKJk</a>
 
-The sample Notion document is here: https://www.notion.so/Jeremiah-Atlas-Edit-Weekly-Proposal-for-Agent-Launch-Week-of-2025-03-10-231aacd47a478086b616ca880113c6a6
+The sample Notion document is here: <a href="https://www.notion.so/Jeremiah-Atlas-Edit-Weekly-Proposal-for-Agent-Launch-Week-of-2025-03-10-231aacd47a478086b616ca880113c6a6" target="_blank">https://www.notion.so/Jeremiah-Atlas-Edit-Weekly-Proposal-for-Agent-Launch-Week-of-2025-03-10-231aacd47a478086b616ca880113c6a6</a>
 
 
 ## 🏗️ Architecture
